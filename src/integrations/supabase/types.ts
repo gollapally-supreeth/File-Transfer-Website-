@@ -9,13 +9,87 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      file_sessions: {
+        Row: {
+          created_at: string
+          download_count: number | null
+          expires_at: string
+          id: string
+          max_downloads: number | null
+          share_code: string
+        }
+        Insert: {
+          created_at?: string
+          download_count?: number | null
+          expires_at?: string
+          id?: string
+          max_downloads?: number | null
+          share_code: string
+        }
+        Update: {
+          created_at?: string
+          download_count?: number | null
+          expires_at?: string
+          id?: string
+          max_downloads?: number | null
+          share_code?: string
+        }
+        Relationships: []
+      }
+      files: {
+        Row: {
+          created_at: string
+          file_size: number
+          filename: string
+          id: string
+          mime_type: string
+          original_filename: string
+          session_id: string | null
+          storage_path: string
+        }
+        Insert: {
+          created_at?: string
+          file_size: number
+          filename: string
+          id?: string
+          mime_type: string
+          original_filename: string
+          session_id?: string | null
+          storage_path: string
+        }
+        Update: {
+          created_at?: string
+          file_size?: number
+          filename?: string
+          id?: string
+          mime_type?: string
+          original_filename?: string
+          session_id?: string | null
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "files_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "file_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      cleanup_expired_files: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      generate_share_code: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
