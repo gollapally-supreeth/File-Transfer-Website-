@@ -1,73 +1,56 @@
-# Welcome to your Lovable project
+# 📁 FILE-TRANSFER-WEBSITE-
 
-## Project info
+**Effortless file sharing, re-defined for everyone.**
 
-**URL**: https://lovable.dev/projects/d92c66df-699f-4fa3-84a5-d330c1f2ffd8
+[![Netlify Status](https://api.netlify.com/api/v1/badges/your-badge-id/deploy-status)](https://app.netlify.com/sites/simpletransfile/deploys)  
+[Live Site → **simpletransfile.netlify.app**](https://simpletransfile.netlify.app/)
 
-## How can I edit this code?
+<div align="center">
 
-There are several ways of editing your application.
+| ![Last commit](https://img.shields.io/github/last-commit/your-github-username/file-transfer-website?logo=git) | ![TypeScript](https://img.shields.io/badge/typescript-97.7%25-blue?logo=typescript) | ![Languages](https://img.shields.io/github/languages/count/your-github-username/file-transfer-website) |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 
-**Use Lovable**
+</div>
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/d92c66df-699f-4fa3-84a5-d330c1f2ffd8) and start prompting.
+---
 
-Changes made via Lovable will be committed automatically to this repo.
+## ✨ Features
 
-**Use your preferred IDE**
+- **Send / Receive** workflows with one-click GSAP-animated buttons  
+- **Drag-and-drop** or traditional file picker  
+- **Progress bars** with real-time status & toast notifications  
+- **Unique 6-digit share codes** for each upload session  
+- **24-hour auto-expiry** (files are deleted automatically)  
+- **Copy-to-clipboard** & QR generation for share codes  
+- Fully **responsive** UI & accessible components  
+- **Rate-limiting** and basic **file-type / size** validation  
+- **Dark / Light** theme toggle
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+---
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 🛠️ Built with
 
-Follow these steps:
+| Front-end | Back-end | Tooling / DX |
+| --------- | -------- | ------------ |
+| ![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black) <br> ![Vite](https://img.shields.io/badge/-Vite-646CFF?logo=vite) <br> ![GSAP](https://img.shields.io/badge/-GSAP-88CE02?logo=greensock&logoColor=black) | ![Node.js](https://img.shields.io/badge/-Node.js-339933?logo=node.js&logoColor=white) <br> ![Express](https://img.shields.io/badge/-Express-000000?logo=express) <br> ![Multer](https://img.shields.io/badge/-Multer-1D74D6) | ![TypeScript](https://img.shields.io/badge/-TypeScript-3178C6?logo=typescript) <br> ![ESLint](https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint) <br> ![React Hook Form](https://img.shields.io/badge/-React%20Hook%20Form-EC5990) <br> ![Zod](https://img.shields.io/badge/-Zod-3E8ECA) <br> ![PostCSS](https://img.shields.io/badge/-PostCSS-DD3A0A?logo=postcss) <br> ![Autoprefixer](https://img.shields.io/badge/-Autoprefixer-CC342D?logo=autoprefixer) |
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+> _Made with ❤️ by **Supreeth**_
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+---
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 🚀 Quick Start
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
+# Clone the repo
+git clone https://github.com/your-github-username/file-transfer-website.git
+cd file-transfer-website
+
+# Install dependencies
+npm install   # or pnpm install / yarn
+
+# Dev server (Frontend + API)
 npm run dev
-```
 
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/d92c66df-699f-4fa3-84a5-d330c1f2ffd8) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+# Prod build
+npm run build
+npm run start
