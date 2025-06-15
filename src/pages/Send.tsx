@@ -2,7 +2,8 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Upload, X, ArrowLeft, File, Image, Video, FileText } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { googleCloudClient } from '@/lib/googleCloud';
+import { STORAGE_CONFIG } from '@/lib/config';
 import { useToast } from '@/hooks/use-toast';
 import { gsap } from 'gsap';
 
@@ -36,8 +37,21 @@ const Send = () => {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
-
   const handleFiles = useCallback((newFiles: FileList) => {
+    // Check file size limits
+    const oversizedFiles = Array.from(newFiles).filter(file => 
+      file.size > STORAGE_CONFIG.maxFileSize
+    );
+    
+    if (oversizedFiles.length > 0) {
+      toast({
+        title: "File too large",
+        description: `Maximum file size is ${formatFileSize(STORAGE_CONFIG.maxFileSize)}`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     const fileArray = Array.from(newFiles).map(file => ({
       file,
       id: Math.random().toString(36).substr(2, 9),
@@ -76,7 +90,6 @@ const Send = () => {
   const removeFile = (id: string) => {
     setFiles(prev => prev.filter(f => f.id !== id));
   };
-
   const uploadFiles = async () => {
     if (files.length === 0) return;
     
@@ -84,57 +97,28 @@ const Send = () => {
     setUploadProgress(0);
 
     try {
-      // Generate share code
-      const { data: shareCodeData, error: shareCodeError } = await supabase
-        .rpc('generate_share_code');
-      
-      if (shareCodeError) throw shareCodeError;
-
-      // Create file session
-      const { data: session, error: sessionError } = await supabase
-        .from('file_sessions')
-        .insert({ share_code: shareCodeData })
-        .select()
-        .single();
-
-      if (sessionError) throw sessionError;
+      // Create session and get share code
+      const { sessionId, shareCode } = await googleCloudClient.createSession();
 
       // Upload files
       const uploadPromises = files.map(async ({ file }, index) => {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${session.id}/${Date.now()}_${index}.${fileExt}`;
-        
-        const { error: uploadError } = await supabase.storage
-          .from('shared-files')
-          .upload(fileName, file);
-
-        if (uploadError) throw uploadError;
-
-        // Save file metadata
-        const { error: metadataError } = await supabase
-          .from('files')
-          .insert({
-            session_id: session.id,
-            filename: fileName,
-            original_filename: file.name,
-            file_size: file.size,
-            mime_type: file.type,
-            storage_path: fileName
-          });
-
-        if (metadataError) throw metadataError;
-
-        setUploadProgress(prev => prev + (100 / files.length));
+        try {
+          await googleCloudClient.uploadFile(file, sessionId);
+          setUploadProgress(prev => prev + (100 / files.length));
+        } catch (error) {
+          console.error(`Failed to upload ${file.name}:`, error);
+          throw error;
+        }
       });
 
       await Promise.all(uploadPromises);
 
       toast({
         title: "Files uploaded successfully!",
-        description: `Share code: ${shareCodeData}`,
+        description: `Share code: ${shareCode}`,
       });
 
-      navigate(`/success/${shareCodeData}`);
+      navigate(`/success/${shareCode}`);
     } catch (error) {
       console.error('Upload error:', error);
       toast({

@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { STORAGE_CONFIG } from '@/lib/config';
 
 const Receive = () => {
   const navigate = useNavigate();
@@ -52,30 +53,26 @@ const Receive = () => {
           <div className="text-center mb-8">
             <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
               <Download className="w-10 h-10 text-white" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">Enter Share Code</h2>
-            <p className="text-gray-600">Enter the 6-character code you received to download files</p>
+            </div>            <h2 className="text-2xl font-bold text-gray-800 mb-2">Enter Share Code</h2>
+            <p className="text-gray-600">Enter the {STORAGE_CONFIG.shareCodeLength}-character code you received to download files</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="shareCode" className="block text-sm font-medium text-gray-700 mb-2">
                 Share Code
-              </label>
-              <input
+              </label>              <input
                 id="shareCode"
                 type="text"
                 value={shareCode}
                 onChange={(e) => setShareCode(e.target.value.toUpperCase())}
-                placeholder="ABC123"
-                maxLength={6}
+                placeholder="ABC12345"
+                maxLength={STORAGE_CONFIG.shareCodeLength}
                 className="w-full px-4 py-4 text-center text-2xl font-mono tracking-widest border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 uppercase"
               />
-            </div>
-
-            <button
+            </div>            <button
               type="submit"
-              disabled={isLoading || shareCode.length !== 6}
+              disabled={isLoading || shareCode.length !== STORAGE_CONFIG.shareCodeLength}
               className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 disabled:from-gray-300 disabled:to-gray-400 text-white py-4 rounded-xl font-semibold text-lg transition-all duration-300 disabled:cursor-not-allowed"
             >
               {isLoading ? 'Loading...' : 'Access Files'}

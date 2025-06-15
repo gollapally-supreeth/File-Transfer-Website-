@@ -2,33 +2,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Download as DownloadIcon, File, Image, Video, FileText } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { googleCloudClient, FileSession, FileMetadata } from '@/lib/googleCloud';
 import { useToast } from '@/hooks/use-toast';
-
-interface FileData {
-  id: string;
-  filename: string;
-  original_filename: string;
-  file_size: number;
-  mime_type: string;
-  storage_path: string;
-  created_at: string;
-}
-
-interface SessionData {
-  id: string;
-  share_code: string;
-  expires_at: string;
-  download_count: number;
-  max_downloads: number;
-}
 
 const Download = () => {
   const { shareCode } = useParams<{ shareCode: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [files, setFiles] = useState<FileData[]>([]);
-  const [session, setSession] = useState<SessionData | null>(null);
+  const [files, setFiles] = useState<FileMetadata[]>([]);
+  const [session, setSession] = useState<FileSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [downloadingFiles, setDownloadingFiles] = useState<Set<string>>(new Set());
 
@@ -37,25 +19,17 @@ const Download = () => {
       loadFiles();
     }
   }, [shareCode]);
-
   const loadFiles = async () => {
     if (!shareCode) return;
 
     try {
       // Get session data
-      const { data: sessionData, error: sessionError } = await supabase
-        .from('file_sessions')
-        .select('*')
-        .eq('share_code', shareCode)
-        .single();
+      const sessionData = await googleCloudClient.getSessionByShareCode(shareCode);
 
-      if (sessionError) throw sessionError;
-
-      // Check if session is expired
-      if (new Date(sessionData.expires_at) < new Date()) {
+      if (!sessionData) {
         toast({
-          title: "Share code expired",
-          description: "This share code has expired.",
+          title: "Invalid share code",
+          description: "The share code is invalid or has expired.",
           variant: "destructive",
         });
         navigate('/receive');
@@ -63,21 +37,12 @@ const Download = () => {
       }
 
       setSession(sessionData);
-
-      // Get files for this session
-      const { data: filesData, error: filesError } = await supabase
-        .from('files')
-        .select('*')
-        .eq('session_id', sessionData.id);
-
-      if (filesError) throw filesError;
-
-      setFiles(filesData || []);
+      setFiles(sessionData.files || []);
     } catch (error) {
       console.error('Error loading files:', error);
       toast({
-        title: "Invalid share code",
-        description: "The share code is invalid or has expired.",
+        title: "Error loading files",
+        description: "Please try again.",
         variant: "destructive",
       });
       navigate('/receive');
@@ -100,38 +65,15 @@ const Download = () => {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
-
-  const downloadFile = async (file: FileData) => {
+  const downloadFile = async (file: FileMetadata) => {
     setDownloadingFiles(prev => new Set(prev).add(file.id));
 
     try {
-      const { data, error } = await supabase.storage
-        .from('shared-files')
-        .download(file.storage_path);
-
-      if (error) throw error;
-
-      // Create download link
-      const url = URL.createObjectURL(data);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = file.original_filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      // Update download count
-      if (session) {
-        await supabase
-          .from('file_sessions')
-          .update({ download_count: session.download_count + 1 })
-          .eq('id', session.id);
-      }
+      await googleCloudClient.downloadFile(file);
 
       toast({
         title: "Download started",
-        description: `Downloading ${file.original_filename}`,
+        description: `Downloading ${file.originalFilename}`,
       });
     } catch (error) {
       console.error('Download error:', error);
@@ -196,16 +138,15 @@ const Download = () => {
           </div>
 
           <div className="space-y-3">
-            {files.map((file) => (
-              <div key={file.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+            {files.map((file) => (              <div key={file.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                 <div className="flex-shrink-0">
                   <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
-                    {getFileIcon(file.mime_type)}
+                    {getFileIcon(file.mimeType)}
                   </div>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-gray-900 truncate">{file.original_filename}</p>
-                  <p className="text-sm text-gray-500">{formatFileSize(file.file_size)}</p>
+                  <p className="font-medium text-gray-900 truncate">{file.originalFilename}</p>
+                  <p className="text-sm text-gray-500">{formatFileSize(file.fileSize)}</p>
                 </div>
                 <button
                   onClick={() => downloadFile(file)}
@@ -217,12 +158,10 @@ const Download = () => {
                 </button>
               </div>
             ))}
-          </div>
-
-          {session && (
+          </div>          {session && (
             <div className="mt-6 p-4 bg-gray-50 rounded-lg text-sm text-gray-600">
-              <p>Expires: {new Date(session.expires_at).toLocaleString()}</p>
-              <p>Downloads: {session.download_count} / {session.max_downloads}</p>
+              <p>Expires: {new Date(session.expiresAt).toLocaleString()}</p>
+              <p>Downloads: {session.downloadCount} / {session.maxDownloads}</p>
             </div>
           )}
         </div>
