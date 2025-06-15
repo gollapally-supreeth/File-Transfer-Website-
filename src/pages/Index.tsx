@@ -146,7 +146,7 @@ const Index = () => {
             <a href="#" className="hover:text-gray-700 transition-colors">Privacy Policy</a>
             <a href="#" className="hover:text-gray-700 transition-colors">Terms of Service</a>
             <span className="flex items-center space-x-1">
-              <span>Built </span>
+              <span>Built with</span>
               <span className="text-red-500">❤️</span>
               <span>by Supreeth</span>
             </span>
