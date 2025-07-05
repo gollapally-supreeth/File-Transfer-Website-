@@ -15,7 +15,7 @@ console.log('🔧 Appwrite Config:', APPWRITE_CONFIG);
 
 // File storage configuration
 export const STORAGE_CONFIG = {
-  maxFileSize: 5 * 1024 * 1024 * 1024, // 5GB for free tier
+  maxFileSize: 500 * 1024 * 1024, // 100MB limit to match backend
   allowedFileTypes: [
     'image/*',
     'video/*',
