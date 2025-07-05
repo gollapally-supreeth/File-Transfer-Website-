@@ -1,6 +1,6 @@
-# 📁 File Transfer Website with Google Cloud Storage
+# 📁 File Transfer Website with Appwrite
 
-**Effortless file sharing with unlimited file sizes, powered by Google Cloud Storage.**
+**Effortless file sharing with unlimited file sizes, powered by Appwrite backend-as-a-service.**
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/your-repo)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
@@ -9,7 +9,7 @@
 
 ## ✨ Features
 
-- 🚀 **Large File Support**: Upload files up to 5TB (Google Cloud free tier: 5GB)
+- 🚀 **Large File Support**: Upload files up to 50MB with Appwrite Storage
 - 🔒 **Secure Sharing**: Auto-generated share codes for secure file access  
 - ⏱️ **Temporary Links**: Files expire automatically after 24 hours
 - 📱 **Responsive Design**: Beautiful UI built with Tailwind CSS and shadcn/ui
@@ -22,7 +22,9 @@
 - **24-hour auto-expiry** (files are deleted automatically)  
 - **Copy-to-clipboard** for share codes  
 - Fully **responsive** UI & accessible components  
-- **File-type / size** validation with Google Cloud limits
+- **File-type / size** validation with configurable limits
+- **Cloud storage** with Appwrite's secure backend
+- **Database-driven** session and file management
 - **Dark / Light** theme toggle
 
 ---
@@ -31,7 +33,7 @@
 
 | Front-end | Back-end | Storage & Tooling |
 | --------- | -------- | ------------ |
-| ![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black) <br> ![Vite](https://img.shields.io/badge/-Vite-646CFF?logo=vite) <br> ![GSAP](https://img.shields.io/badge/-GSAP-88CE02?logo=greensock&logoColor=black) | ![Node.js](https://img.shields.io/badge/-Node.js-339933?logo=node.js&logoColor=white) <br> ![Express](https://img.shields.io/badge/-Express-000000?logo=express) | ![Google Cloud](https://img.shields.io/badge/-Google%20Cloud-4285F4?logo=google-cloud) <br> ![TypeScript](https://img.shields.io/badge/-TypeScript-3178C6?logo=typescript) <br> ![Tailwind CSS](https://img.shields.io/badge/-Tailwind%20CSS-38B2AC?logo=tailwind-css) |
+| ![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black) <br> ![Vite](https://img.shields.io/badge/-Vite-646CFF?logo=vite) <br> ![GSAP](https://img.shields.io/badge/-GSAP-88CE02?logo=greensock&logoColor=black) | ![Node.js](https://img.shields.io/badge/-Node.js-339933?logo=node.js&logoColor=white) <br> ![Express](https://img.shields.io/badge/-Express-000000?logo=express) | ![Appwrite](https://img.shields.io/badge/-Appwrite-FD366E?logo=appwrite&logoColor=white) <br> ![TypeScript](https://img.shields.io/badge/-TypeScript-3178C6?logo=typescript) <br> ![Tailwind CSS](https://img.shields.io/badge/-Tailwind%20CSS-38B2AC?logo=tailwind-css) |
 
 ---
 
@@ -39,8 +41,7 @@
 
 ### Prerequisites
 - Node.js 18+ and npm
-- Google Cloud account with billing enabled
-- Google Cloud CLI installed
+- Appwrite account (https://appwrite.io)
 
 ### 1. Install Dependencies
 ```bash
@@ -53,25 +54,29 @@ npm install
 cd ..
 ```
 
-### 2. Google Cloud Setup
-```bash
-# Create a storage bucket (must be globally unique)
-gsutil mb gs://your-unique-bucket-name
+### 2. Appwrite Setup
+Follow the detailed setup guide: [APPWRITE_SETUP.md](./APPWRITE_SETUP.md)
 
-# Create service account and download key
-# Go to Google Cloud Console → IAM & Admin → Service Accounts
-# Create new service account with Storage Admin role
-# Download JSON key file as backend/service-account-key.json
-```
+1. Create an Appwrite project
+2. Set up database and collections
+3. Create storage bucket
+4. Generate API key
 
 ### 3. Environment Configuration
 ```bash
-# Copy environment template
-cp .env.example .env
+# Backend .env (in backend folder)
+APPWRITE_ENDPOINT=https://cloud.appwrite.io/v1
+APPWRITE_PROJECT_ID=your-project-id
+APPWRITE_API_KEY=your-api-key
+APPWRITE_DATABASE_ID=your-database-id
+APPWRITE_SESSIONS_COLLECTION_ID=sessions
+APPWRITE_FILES_COLLECTION_ID=files
+APPWRITE_BUCKET_ID=file-storage
 
-# Edit .env with your Google Cloud settings
-VITE_GOOGLE_CLOUD_PROJECT_ID=your-project-id
-VITE_GOOGLE_CLOUD_BUCKET_NAME=your-unique-bucket-name
+# Frontend .env (in root folder)
+VITE_APPWRITE_ENDPOINT=https://cloud.appwrite.io/v1
+VITE_APPWRITE_PROJECT_ID=your-project-id
+VITE_APPWRITE_DATABASE_ID=your-database-id
 VITE_API_ENDPOINT=http://localhost:3001/api
 ```
 
@@ -84,3 +89,24 @@ npm run dev
 # Terminal 2: Start frontend
 npm run dev
 ```
+
+## � Appwrite Features
+
+### Database Collections
+- **Sessions**: Store file sharing sessions with expiration
+- **Files**: Store file metadata and references
+- **Automatic cleanup**: Expired sessions are cleaned automatically
+
+### Storage
+- **Secure file storage** with Appwrite's built-in security
+- **File previews** and direct download URLs
+- **Configurable file size limits** and type restrictions
+- **Antivirus scanning** and encryption (when enabled)
+
+### API Endpoints
+- `POST /api/sessions` - Create new file session
+- `GET /api/sessions/:shareCode` - Get session by share code
+- `POST /api/upload` - Upload file to session
+- `GET /api/download/:fileId` - Get download URL
+- `GET /api/download/:fileId/file` - Direct file download
+- `POST /api/cleanup` - Clean expired sessions

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Download as DownloadIcon, File, Image, Video, FileText } from 'lucide-react';
-import { googleCloudClient, FileSession, FileMetadata } from '@/lib/googleCloud';
+import { appwriteClient, FileSession, FileMetadata } from '@/lib/appwrite';
 import { useToast } from '@/hooks/use-toast';
 
 const Download = () => {
@@ -24,7 +24,7 @@ const Download = () => {
 
     try {
       // Get session data
-      const sessionData = await googleCloudClient.getSessionByShareCode(shareCode);
+      const sessionData = await appwriteClient.getSessionByShareCode(shareCode);
 
       if (!sessionData) {
         toast({
@@ -69,7 +69,7 @@ const Download = () => {
     setDownloadingFiles(prev => new Set(prev).add(file.id));
 
     try {
-      await googleCloudClient.downloadFile(file);
+      await appwriteClient.downloadFile(file);
 
       toast({
         title: "Download started",

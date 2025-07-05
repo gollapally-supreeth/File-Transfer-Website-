@@ -1,0 +1,9 @@
+This is a test file for the App Writer file transfer system.
+
+The file should be uploaded and downloadable using the share code system.
+
+Features tested:
+- File upload via App Writer backend
+- Session creation with share codes
+- File download functionality
+- Local storage management

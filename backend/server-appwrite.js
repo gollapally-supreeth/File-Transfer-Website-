@@ -3,14 +3,13 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import multer from 'multer';
 import crypto from 'crypto';
-import { File } from 'node-fetch-native-with-agent';
-import { sessionManager, storage, APPWRITE_CONFIG, ID, Query, Permission, Role } from './appwrite.js';
+import { sessionManager, storage, APPWRITE_CONFIG, ID } from './appwrite.js';
 
 // Load environment variables
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 3003;
+const port = process.env.PORT || 3001;
 
 // Configure multer for file uploads
 const upload = multer({ 
@@ -78,50 +77,33 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
       return res.status(400).json({ error: 'Session ID is required' });
     }
 
-    console.log(`Upload request: ${originalname}, size: ${buffer.length}, sessionId: ${sessionId}`);
+    // Verify session exists
+    const session = await sessionManager.getSessionByShareCode('temp'); // This will be improved
+    // For now, we'll trust the sessionId from the frontend
 
-    // Verify session exists (for now we'll trust the sessionId from frontend)
-    // TODO: Implement proper session verification when needed
-
-    // Upload file to Appwrite Storage using SDK with temporary file
+    // Upload file to Appwrite Storage
     const fileId = ID.unique();
+    const fileName = `${fileId}-${originalname}`;
     
-    console.log(`Uploading file: ${originalname}, size: ${buffer.length} bytes`);
+    // Convert buffer to File for Appwrite
+    const file = new File([buffer], fileName, { type: mimetype });
     
-    let uploadedFile;
-    
-    try {
-      // Create a File object using the proper File constructor from node-fetch-native-with-agent
-      // This matches what the Appwrite SDK expects
-      const fileObj = new File([buffer], originalname, { type: mimetype });
-      
-      console.log(`Created File object: ${fileObj.name}, size: ${fileObj.size}, type: ${fileObj.type}`);
-      
-      uploadedFile = await storage.createFile(
-        APPWRITE_CONFIG.bucketId,
-        fileId,
-        fileObj,
-        [Permission.read(Role.any())]
-      );
-      
-      console.log(`File uploaded successfully: ${uploadedFile.$id}`);
-      
-    } catch (error) {
-      console.error('Appwrite upload error:', error);
-      throw error;
-    }
+    const uploadedFile = await storage.createFile(
+      APPWRITE_CONFIG.bucketId,
+      fileId,
+      file
+    );
 
     // Create file metadata in database
     const fileMetadata = await sessionManager.createFileMetadata(sessionId, {
-      filename: `${fileId}-${originalname}`,
+      filename: fileName,
       originalFilename: originalname,
       fileSize: buffer.length,
       mimeType: mimetype,
       storageFileId: uploadedFile.$id,
     });
 
-    console.log(`File metadata created: ${fileMetadata.$id}`);
-    console.log(`File uploaded successfully: ${originalname} (${buffer.length} bytes)`);
+    console.log(`File uploaded: ${originalname} (${buffer.length} bytes)`);
     res.json(fileMetadata);
   } catch (error) {
     console.error('Error uploading file:', error);
@@ -226,7 +208,6 @@ app.listen(port, () => {
   console.log(`🗄️ Database: ${APPWRITE_CONFIG.databaseId}`);
   console.log(`📁 Storage Bucket: ${APPWRITE_CONFIG.bucketId}`);
   console.log(`🔗 API endpoint: http://localhost:${port}/api`);
-  console.log('⚠️  Note: If you see connection errors, check your internet connection and Appwrite configuration');
 });
 
 // Cleanup expired sessions on startup and every hour
@@ -237,17 +218,12 @@ async function runCleanup() {
       console.log(`🧹 Cleaned up ${cleaned} expired sessions`);
     }
   } catch (error) {
-    // Log cleanup errors but don't crash the server
-    if (error.message.includes('timeout') || error.message.includes('fetch failed')) {
-      console.log('⚠️  Cleanup skipped due to network connectivity issues');
-    } else {
-      console.error('Error running cleanup:', error.message);
-    }
+    console.error('Error running cleanup:', error);
   }
 }
 
 // Run cleanup every hour
 setInterval(runCleanup, 60 * 60 * 1000);
 
-// Run cleanup on startup (after 30 seconds to let server fully start)
-setTimeout(runCleanup, 30000);
+// Run cleanup on startup (after 10 seconds)
+setTimeout(runCleanup, 10000);
