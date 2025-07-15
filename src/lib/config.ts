@@ -6,8 +6,8 @@ export const APPWRITE_CONFIG = {
   sessionsCollectionId: import.meta.env.VITE_APPWRITE_SESSIONS_COLLECTION_ID || 'sessions',
   filesCollectionId: import.meta.env.VITE_APPWRITE_FILES_COLLECTION_ID || 'files',
   bucketId: import.meta.env.VITE_APPWRITE_BUCKET_ID || 'file-storage',
-  // For client-side operations, we'll use the backend API
-  apiEndpoint: import.meta.env.VITE_API_ENDPOINT || 'http://localhost:3002/api',
+  // Use Appwrite directly instead of backend API
+  apiEndpoint: import.meta.env.VITE_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1',
 };
 
 // Debug: Log configuration

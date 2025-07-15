@@ -2,7 +2,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Upload, X, ArrowLeft, File, Image, Video, FileText } from 'lucide-react';
-import { appwriteClient } from '@/lib/appwrite';
+import { appwriteService } from '@/services/appwriteService';
 import { STORAGE_CONFIG } from '@/lib/config';
 import { useToast } from '@/hooks/use-toast';
 import { gsap } from 'gsap';
@@ -98,12 +98,12 @@ const Send = () => {
 
     try {
       // Create session and get share code
-      const { sessionId, shareCode } = await appwriteClient.createSession();
+      const { sessionId, shareCode } = await appwriteService.createSession();
 
       // Upload files
       const uploadPromises = files.map(async ({ file }, index) => {
         try {
-          await appwriteClient.uploadFile(file, sessionId);
+          await appwriteService.uploadFile(file, sessionId);
           setUploadProgress(prev => prev + (100 / files.length));
         } catch (error) {
           console.error(`Failed to upload ${file.name}:`, error);

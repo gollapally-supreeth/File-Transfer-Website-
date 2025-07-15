@@ -9,7 +9,7 @@
 
 ## ✨ Features
 
-- 🚀 **Large File Support**: Upload files up to 50MB with Appwrite Storage
+- 🚀 **Large File Support**: Upload files up to 500MB with Appwrite Storage
 - 🔒 **Secure Sharing**: Auto-generated share codes for secure file access  
 - ⏱️ **Temporary Links**: Files expire automatically after 24 hours
 - 📱 **Responsive Design**: Beautiful UI built with Tailwind CSS and shadcn/ui
@@ -18,6 +18,59 @@
 - **Send / Receive** workflows with one-click GSAP-animated buttons  
 - **Drag-and-drop** or traditional file picker
 - **Progress bars** with real-time status & toast notifications  
+
+## 🚀 Deployment
+
+### Deploy to Vercel
+
+1. **Connect your GitHub repository** to Vercel
+2. **Set environment variables** in Vercel dashboard:
+   ```
+   VITE_APPWRITE_ENDPOINT=https://nyc.cloud.appwrite.io/v1
+   VITE_APPWRITE_PROJECT_ID=686813c9002897ec2332
+   VITE_APPWRITE_DATABASE_ID=transfile-db
+   VITE_APPWRITE_SESSIONS_COLLECTION_ID=sessions
+   VITE_APPWRITE_FILES_COLLECTION_ID=files
+   VITE_APPWRITE_BUCKET_ID=file-storage
+   VITE_API_ENDPOINT=https://nyc.cloud.appwrite.io/v1
+   ```
+3. **Deploy**: Vercel will automatically build and deploy your app
+
+### Deploy to Netlify
+
+1. **Connect your repository** to Netlify
+2. **Build settings**:
+   - Build command: `npm run build`
+   - Publish directory: `dist`
+3. **Environment variables**: Same as Vercel (above)
+4. **Deploy**: Netlify will build and deploy automatically
+
+## 🛠️ Local Development
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server (frontend only)
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+## 📁 Project Structure
+
+```
+src/
+├── components/ui/          # Reusable UI components
+├── services/              # Appwrite service layer
+├── pages/                 # Main application pages
+├── lib/                   # Utility functions and config
+└── hooks/                 # Custom React hooks
+```
 - **Unique 8-digit share codes** for each upload session  
 - **24-hour auto-expiry** (files are deleted automatically)  
 - **Copy-to-clipboard** for share codes  
@@ -90,18 +143,44 @@ npm run dev
 npm run dev
 ```
 
-## � Appwrite Features
+## ⚙️ Appwrite Configuration
 
-### Database Collections
-- **Sessions**: Store file sharing sessions with expiration
-- **Files**: Store file metadata and references
-- **Automatic cleanup**: Expired sessions are cleaned automatically
+### Platform Settings
 
-### Storage
-- **Secure file storage** with Appwrite's built-in security
-- **File previews** and direct download URLs
-- **Configurable file size limits** and type restrictions
-- **Antivirus scanning** and encryption (when enabled)
+In your Appwrite console, add these platforms:
+
+1. **Web Platform**:
+   - Name: `Trans-File Web`
+   - Hostname: `localhost` (for development)
+   - Hostname: `your-domain.vercel.app` (for production)
+
+2. **Platform Permissions**:
+   - Make sure your domain is added to the platform list
+   - Enable CORS for your domain
+
+### Database Setup
+
+Your Appwrite database should have these collections:
+
+1. **Sessions Collection** (`sessions`):
+   - `shareCode` (string, required)
+   - `expiresAt` (datetime, required)
+   - `createdAt` (datetime, required)
+   - `downloadCount` (integer, default: 0)
+   - `maxDownloads` (integer, default: 10)
+
+2. **Files Collection** (`files`):
+   - `sessionId` (string, required)
+   - `filename` (string, required)
+   - `originalFilename` (string, required)
+   - `fileSize` (integer, required)
+   - `mimeType` (string, required)
+   - `storageFileId` (string, required)
+   - `createdAt` (datetime, required)
+
+3. **Storage Bucket** (`file-storage`):
+   - Max file size: 500MB
+   - Allowed file extensions: `*` (or specify as needed)
 
 ### API Endpoints
 - `POST /api/sessions` - Create new file session

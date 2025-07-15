@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Download as DownloadIcon, File, Image, Video, FileText } from 'lucide-react';
-import { appwriteClient, FileSession, FileMetadata } from '@/lib/appwrite';
+import { appwriteService, FileSession, FileMetadata } from '@/services/appwriteService';
 import { useToast } from '@/hooks/use-toast';
 
 const Download = () => {
@@ -24,7 +24,7 @@ const Download = () => {
 
     try {
       // Get session data
-      const sessionData = await appwriteClient.getSessionByShareCode(shareCode);
+      const sessionData = await appwriteService.getSessionByShareCode(shareCode);
 
       if (!sessionData) {
         toast({
@@ -69,7 +69,20 @@ const Download = () => {
     setDownloadingFiles(prev => new Set(prev).add(file.id));
 
     try {
-      await appwriteClient.downloadFile(file);
+      const downloadUrl = await appwriteService.downloadFile(file.storageFileId);
+      
+      // Create a temporary link to download the file
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = file.originalFilename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Increment download count
+      if (session) {
+        await appwriteService.incrementDownloadCount(session.id);
+      }
 
       toast({
         title: "Download started",

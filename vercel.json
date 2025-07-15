@@ -1,0 +1,20 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "env": {
+    "VITE_APPWRITE_ENDPOINT": "@vite_appwrite_endpoint",
+    "VITE_APPWRITE_PROJECT_ID": "@vite_appwrite_project_id",
+    "VITE_APPWRITE_DATABASE_ID": "@vite_appwrite_database_id",
+    "VITE_APPWRITE_SESSIONS_COLLECTION_ID": "@vite_appwrite_sessions_collection_id",
+    "VITE_APPWRITE_FILES_COLLECTION_ID": "@vite_appwrite_files_collection_id",
+    "VITE_APPWRITE_BUCKET_ID": "@vite_appwrite_bucket_id",
+    "VITE_API_ENDPOINT": "@vite_api_endpoint"
+  }
+}
