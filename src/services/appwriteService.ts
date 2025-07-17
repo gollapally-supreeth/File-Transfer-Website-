@@ -1,5 +1,5 @@
 import { Client, Account, Databases, Storage, ID, Query } from 'appwrite';
-import { APPWRITE_CONFIG } from '../lib/config';
+import { APPWRITE_CONFIG, STORAGE_CONFIG } from '../lib/config';
 
 export interface FileSession {
   id: string;
@@ -49,7 +49,7 @@ class AppwriteService {
   private generateShareCode(): string {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let result = '';
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < STORAGE_CONFIG.shareCodeLength; i++) {
       result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return result;

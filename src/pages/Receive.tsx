@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Download } from 'lucide-react';
@@ -82,7 +81,7 @@ const Receive = () => {
           <div className="mt-8 p-4 bg-gray-50 rounded-lg">
             <h3 className="font-semibold text-gray-800 mb-2">Need help?</h3>
             <ul className="text-sm text-gray-600 space-y-1">
-              <li>• Share codes are 6 characters long</li>
+              <li>• Share codes are {STORAGE_CONFIG.shareCodeLength} characters long</li>
               <li>• Codes expire after 24 hours</li>
               <li>• Contact the sender if the code doesn't work</li>
             </ul>
